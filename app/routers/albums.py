@@ -42,10 +42,11 @@ def get_albums(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     sort_by: Optional[str] = Query(None, enum=["price_asc", "price_desc", "title", "year"]),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user)
 ):
     """
-    Get all albums with filtering, sorting and pagination
+    Get all albums with filtering, sorting and pagination (Authenticated users only)
     """
     query = db.query(Album)
     
@@ -82,10 +83,11 @@ def get_albums(
 @router.get("/{album_id}", response_model=AlbumResponse)
 def get_album(
     album_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user)
 ):
     """
-    Get album by ID
+    Get album by ID (Authenticated users only)
     """
     album = db.query(Album).filter(Album.id == album_id).first()
     if album is None:

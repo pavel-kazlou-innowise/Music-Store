@@ -31,10 +31,11 @@ def create_artist(
 def get_artists(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user)
 ):
     """
-    Get all artists with pagination
+    Get all artists with pagination (Authenticated users only)
     """
     artists = db.query(Artist).offset(skip).limit(limit).all()
     return artists
@@ -42,10 +43,11 @@ def get_artists(
 @router.get("/{artist_id}", response_model=ArtistResponse)
 def get_artist(
     artist_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: dict = Depends(get_current_user)
 ):
     """
-    Get artist by ID
+    Get artist by ID (Authenticated users only)
     """
     artist = db.query(Artist).filter(Artist.id == artist_id).first()
     if artist is None:
