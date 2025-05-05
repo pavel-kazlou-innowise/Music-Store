@@ -184,6 +184,24 @@ class GiftCard(Base):
 
     transactions = relationship("GiftCardTransaction", back_populates="gift_card")
 
+class Discount(Base):
+    __tablename__ = "discounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    discount_percent = Column(Integer)
+    discount_amount = Column(Float)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=func.now())
+    
+    __table_args__ = (
+        Index('ix_discounts_dates', 'start_date', 'end_date'),
+        Index('ix_discounts_is_active', 'is_active'),
+    )
+
 class Rating(Base):
     """
     Модель рейтинга/отзыва для альбома.
@@ -249,3 +267,29 @@ class RatingVote(Base):
     
     rating = relationship("Rating", back_populates="votes")
     user = relationship("User", back_populates="rating_votes")
+
+class LoyaltyTier(Base):
+    __tablename__ = "loyalty_tiers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    min_points = Column(Integer, nullable=False)
+    points_multiplier = Column(Float, nullable=False, default=1.0)
+    discount_percent = Column(Integer)
+    created_at = Column(DateTime, default=func.now())
+
+    users = relationship("UserLoyalty", back_populates="tier")
+
+class UserLoyalty(Base):
+    __tablename__ = "user_loyalty"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    tier_id = Column(Integer, ForeignKey("loyalty_tiers.id"))
+    points = Column(Integer, default=0)
+    total_points_earned = Column(Integer, default=0)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="loyalty")
+    tier = relationship("LoyaltyTier", back_populates="users")

@@ -347,6 +347,100 @@ class UserRatingStats(BaseModel):
             }
         }
 
+# Gift card schemas
+class GiftCardBase(BaseModel):
+    code: str = Field(..., min_length=8, max_length=20, regex="^[A-Z0-9-]+$")
+    initial_balance: float = Field(..., gt=0)
+    expiry_date: datetime
+    is_active: bool = True
+
+class GiftCardCreate(GiftCardBase):
+    pass
+
+class GiftCardResponse(GiftCardBase):
+    id: int
+    current_balance: float
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+# Promo code schemas
+class PromoCodeBase(BaseModel):
+    code: str = Field(..., min_length=3, max_length=20, regex="^[A-Z0-9_-]+$")
+    description: Optional[str] = Field(None, max_length=1000)
+    discount_amount: Optional[float] = Field(None, ge=0)
+    discount_percent: Optional[int] = Field(None, ge=0, le=100)
+    start_date: datetime
+    end_date: datetime
+    is_active: bool = True
+    max_uses: Optional[int] = Field(None, ge=1)
+    minimum_order_amount: float = Field(default=0, ge=0)
+    is_single_use: bool = False
+
+class PromoCodeCreate(PromoCodeBase):
+    pass
+
+class PromoCodeResponse(PromoCodeBase):
+    id: int
+    uses_count: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+# Loyalty schemas
+class LoyaltyTierBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=50)
+    min_points: int = Field(..., ge=0)
+    points_multiplier: float = Field(..., ge=1.0)
+    discount_percent: Optional[int] = Field(None, ge=0, le=100)
+
+class LoyaltyTierCreate(LoyaltyTierBase):
+    pass
+
+class LoyaltyTierResponse(LoyaltyTierBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class UserLoyaltyBase(BaseModel):
+    points: int = Field(default=0, ge=0)
+    total_points_earned: int = Field(default=0, ge=0)
+
+class UserLoyaltyResponse(UserLoyaltyBase):
+    id: int
+    user_id: int
+    tier_id: Optional[int]
+    created_at: datetime
+    updated_at: datetime
+    tier: Optional[LoyaltyTierResponse]
+
+    class Config:
+        orm_mode = True
+
+# Discount schemas
+class DiscountBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
+    discount_percent: Optional[int] = Field(None, ge=0, le=100)
+    discount_amount: Optional[float] = Field(None, ge=0)
+    start_date: datetime
+    end_date: datetime
+    is_active: bool = True
+
+class DiscountCreate(DiscountBase):
+    pass
+
+class DiscountResponse(DiscountBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
 # Token schemas
 class Token(BaseModel):
     access_token: str
