@@ -92,9 +92,18 @@ public class ArtistsTests extends BaseTest {
 
     @Test
     public void getListOfArtistsAsUserWithoutAdminRightsTest() {
-        ValidatableResponse response = authenticatedAsNotAdminRequest()
+        List<Artist> artists = authenticatedAsNotAdminRequest()
+                .queryParam("skip", 0)
+                .queryParam("limit", 100)
                 .when()
-                .get(BASE_URL + API + ARTISTS).then().statusCode(403);
+                .get(BASE_URL + API + ARTISTS).then().statusCode(200)
+                .extract().as(new TypeRef<List<Artist>>() {
+                });
+        assertFalse(artists.isEmpty(), "The list of artists is empty");
+        log.info("The list of artists is: {}",
+                artists.stream()
+                        .map(artist -> String.format("Name: %s, Description: %s, ID: %s", artist.getName(), artist.getDescription(), artist.getId()))
+                        .collect(Collectors.joining("; ")));
     }
 
     @Test
@@ -128,10 +137,14 @@ public class ArtistsTests extends BaseTest {
 
     @Test
     public void getArtistAsUserWithoutAdminRightsTest() {
-        ValidatableResponse response = authenticatedAsNotAdminRequest()
+        Artist artistTest = authenticatedAsNotAdminRequest()
                 .when()
                 .get(BASE_URL + API + ARTISTS + "5")
-                .then().statusCode(403);
+                .then().statusCode(200)
+                .extract().as(Artist.class);
+        assertEquals("test", artistTest.getName(), "The name of artist is incorrect");
+        assertEquals("test", artistTest.getDescription(), "The description artist is incorrect");
+        log.info("Artist with id {} and name {} was found", artistTest.getId(), artistTest.getName());
     }
 
     @Test
