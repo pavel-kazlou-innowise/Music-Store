@@ -143,5 +143,7 @@ uvicorn app.main:app --reload
 ## Документация API
 
 После запуска сервера документация доступна по адресам:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://localhost:8000/api/docs
+- ReDoc: http://localhost:8000/api/redoc
+
+> **Внимание:** Некоторые эндпоинты, указанные в этом README, могут быть не реализованы в текущей версии приложения.

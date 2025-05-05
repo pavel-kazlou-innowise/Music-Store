@@ -5,7 +5,7 @@ from datetime import datetime
 # User schemas
 class UserBase(BaseModel):
     email: EmailStr
-    username: str = Field(..., min_length=3, max_length=50, regex="^[a-zA-Z0-9_-]+$")  # Allow only letters, numbers, underscore and dash
+    username: str = Field(..., min_length=3, max_length=50, pattern="^[a-zA-Z0-9_-]+$")  # Allow only letters, numbers, underscore and dash
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=50)  # Minimum 8 characters for password
@@ -16,8 +16,7 @@ class UserResponse(UserBase):
     is_admin: bool
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Artist schemas
 class ArtistBase(BaseModel):
@@ -30,8 +29,7 @@ class ArtistCreate(ArtistBase):
 class ArtistResponse(ArtistBase):
     id: int
     
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Album schemas
 class AlbumBase(BaseModel):
@@ -48,8 +46,7 @@ class AlbumResponse(AlbumBase):
     id: int
     artist: ArtistResponse
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Track schemas
 class TrackBase(BaseModel):
@@ -64,8 +61,7 @@ class TrackResponse(TrackBase):
     id: int
     album_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Order schemas
 class OrderItemBase(BaseModel):
@@ -79,8 +75,7 @@ class OrderItemResponse(OrderItemBase):
     id: int
     price_at_time: float
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
@@ -103,8 +98,7 @@ class OrderResponse(BaseModel):
     used_loyalty_points: Optional[int] = None
     discount_details: Optional[Dict] = None  # Детали примененных скидок
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Review schemas
 class ReviewBase(BaseModel):
@@ -120,8 +114,7 @@ class ReviewResponse(ReviewBase):
     album_id: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Rating schemas
 class RatingBase(BaseModel):
@@ -164,14 +157,15 @@ class RatingCreate(RatingBase):
         title="ID альбома"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "score": 5,
                 "review_text": "Отличный альбом! Качество записи превосходное.",
                 "album_id": 1
             }
         }
+    }
 
 class RatingUpdate(BaseModel):
     """
@@ -198,13 +192,14 @@ class RatingUpdate(BaseModel):
         title="Текст отзыва"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "score": 4,
                 "review_text": "После нескольких прослушиваний могу сказать..."
             }
         }
+    }
 
 class RatingVote(BaseModel):
     """
@@ -220,12 +215,13 @@ class RatingVote(BaseModel):
         title="Полезность"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "is_helpful": True
             }
         }
+    }
 
 class RatingResponse(RatingBase):
     """
@@ -250,22 +246,7 @@ class RatingResponse(RatingBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-        schema_extra = {
-            "example": {
-                "id": 1,
-                "score": 5,
-                "review_text": "Отличный альбом! Качество записи превосходное.",
-                "user_id": 1,
-                "album_id": 1,
-                "is_verified_purchase": True,
-                "helpful_votes": 10,
-                "unhelpful_votes": 1,
-                "created_at": "2025-05-05T10:00:00",
-                "updated_at": "2025-05-05T10:00:00"
-            }
-        }
+    model_config = {"from_attributes": True}
 
 class AlbumRatingStats(BaseModel):
     """
@@ -286,29 +267,7 @@ class AlbumRatingStats(BaseModel):
     rating_distribution: Dict[int, int] = Field(..., description="Распределение оценок по звездам")
     verified_rating_distribution: Dict[int, int] = Field(..., description="Распределение оценок от подтвержденных покупателей")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "album_id": 1,
-                "weighted_rating": 4.5,
-                "rating_count": 100,
-                "verified_rating_count": 80,
-                "rating_distribution": {
-                    "1": 5,
-                    "2": 10,
-                    "3": 15,
-                    "4": 30,
-                    "5": 40
-                },
-                "verified_rating_distribution": {
-                    "1": 3,
-                    "2": 7,
-                    "3": 10,
-                    "4": 25,
-                    "5": 35
-                }
-            }
-        }
+    model_config = {"from_attributes": True}
 
 class UserRatingStats(BaseModel):
     """
@@ -329,27 +288,11 @@ class UserRatingStats(BaseModel):
     helpful_votes_received: int = Field(..., description="Количество полезных голосов")
     total_review_length: int = Field(..., description="Общая длина всех отзывов")
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "user_id": 1,
-                "total_ratings": 50,
-                "average_rating": 4.2,
-                "rating_distribution": {
-                    "1": 2,
-                    "2": 3,
-                    "3": 10,
-                    "4": 20,
-                    "5": 15
-                },
-                "helpful_votes_received": 100,
-                "total_review_length": 5000
-            }
-        }
+    model_config = {"from_attributes": True}
 
 # Gift card schemas
 class GiftCardBase(BaseModel):
-    code: str = Field(..., min_length=8, max_length=20, regex="^[A-Z0-9-]+$")
+    code: str = Field(..., min_length=8, max_length=20, pattern="^[A-Z0-9-]+$")
     initial_balance: float = Field(..., gt=0)
     expiry_date: datetime
     is_active: bool = True
@@ -362,12 +305,11 @@ class GiftCardResponse(GiftCardBase):
     current_balance: float
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Promo code schemas
 class PromoCodeBase(BaseModel):
-    code: str = Field(..., min_length=3, max_length=20, regex="^[A-Z0-9_-]+$")
+    code: str = Field(..., min_length=3, max_length=20, pattern="^[A-Z0-9_-]+$")
     description: Optional[str] = Field(None, max_length=1000)
     discount_amount: Optional[float] = Field(None, ge=0)
     discount_percent: Optional[int] = Field(None, ge=0, le=100)
@@ -386,8 +328,7 @@ class PromoCodeResponse(PromoCodeBase):
     uses_count: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Loyalty schemas
 class LoyaltyTierBase(BaseModel):
@@ -403,8 +344,7 @@ class LoyaltyTierResponse(LoyaltyTierBase):
     id: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class UserLoyaltyBase(BaseModel):
     points: int = Field(default=0, ge=0)
@@ -418,8 +358,7 @@ class UserLoyaltyResponse(UserLoyaltyBase):
     updated_at: datetime
     tier: Optional[LoyaltyTierResponse]
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Discount schemas
 class DiscountBase(BaseModel):
@@ -438,8 +377,7 @@ class DiscountResponse(DiscountBase):
     id: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # Token schemas
 class Token(BaseModel):

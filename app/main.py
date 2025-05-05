@@ -161,7 +161,7 @@ app.openapi = custom_openapi
 # Подключаем роутеры
 app.include_router(
     auth.router,
-    prefix="/api",
+    prefix="/api/auth",
     tags=["auth"],
     responses={
         401: {"description": "Ошибка аутентификации"},
