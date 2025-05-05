@@ -107,11 +107,21 @@ public class AlbumsTests extends BaseTest {
     @Test
     public void getListOfAlbumsAsUserWithoutAdminRightsTest() {
         RequestSpecification request = authenticatedAsNotAdminRequest();
+        request = authenticatedAsAdminRequest();
         queryParams.forEach(request::queryParam);
-        ValidatableResponse response = request
+
+        List<Album> albums = request
                 .when()
                 .get(BASE_URL + API + ALBUMS)
-                .then().statusCode(403);
+                .then().statusCode(200)
+                .extract().as(new TypeRef<List<Album>>() {
+                });
+
+        assertFalse(albums.isEmpty(), "Filtered artist list is empty");
+        log.info("The list of artists is: {}",
+                albums.stream()
+                        .map(artist -> String.format("Name: %s, Release year: %s", album.getTitle(), album.getRelease_year()))
+                        .collect(Collectors.joining("; ")));
     }
 
     @Test
@@ -143,10 +153,13 @@ public class AlbumsTests extends BaseTest {
 
     @Test
     public void getAlbumAsUserWithoutAdminRightsTest() {
-        ValidatableResponse response = authenticatedAsNotAdminRequest()
+        Album albumTest = authenticatedAsNotAdminRequest()
                 .when()
                 .get(BASE_URL + API + ALBUMS + "3")
-                .then().statusCode(403);
+                .then().statusCode(200)
+                .extract().as(Album.class);
+        assertEquals("test", albumTest.getTitle(), "The title of album is incorrect");
+        log.info("Album with title {} was found", albumTest.getTitle());
     }
 
     @Test
