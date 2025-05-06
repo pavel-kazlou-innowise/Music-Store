@@ -52,7 +52,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return Response(content=UserResponse.model_validate(db_user).model_dump_json(), media_type="application/json")
+    return Response(content=UserResponse.model_validate(db_user).json(), media_type="application/json")
 
 @router.post("/token", response_model=Token, responses={200: {"content": {"application/json": {}}}})
 def login(
@@ -74,7 +74,7 @@ def login(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return Response(content=Token(access_token=access_token, token_type="bearer").model_dump_json(), media_type="application/json")
+    return Response(content=Token(access_token=access_token, token_type="bearer").json(), media_type="application/json")
 
 @router.patch("/users/{username}/rights", response_model=UserResponse, responses={200: {"content": {"application/json": {}}}})
 def update_user_rights(
@@ -105,4 +105,4 @@ def update_user_rights(
     user.is_admin = rights.is_admin
     db.commit()
     db.refresh(user)
-    return Response(content=UserResponse.model_validate(user).model_dump_json(), media_type="application/json")
+    return Response(content=UserResponse.model_validate(user).json(), media_type="application/json")
