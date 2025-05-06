@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 
 from ..models.database import get_db
@@ -12,7 +12,7 @@ router = APIRouter(
     tags=["artists"]
 )
 
-@router.post("/", response_model=ArtistResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ArtistResponse, status_code=status.HTTP_201_CREATED, responses={201: {"content": {"application/json": {}}}})
 def create_artist(
     artist: ArtistCreate,
     db: Session = Depends(get_db),
@@ -25,9 +25,9 @@ def create_artist(
     db.add(db_artist)
     db.commit()
     db.refresh(db_artist)
-    return db_artist
+    return Response(content=ArtistResponse.model_validate(db_artist).model_dump_json(), media_type="application/json")
 
-@router.get("/", response_model=List[ArtistResponse])
+@router.get("/", response_model=List[ArtistResponse], responses={200: {"content": {"application/json": {}}}})
 def get_artists(
     skip: int = 0,
     limit: int = 100,
@@ -38,9 +38,9 @@ def get_artists(
     Get all artists with pagination (Authenticated users only)
     """
     artists = db.query(Artist).offset(skip).limit(limit).all()
-    return artists
+    return Response(content=[ArtistResponse.model_validate(artist).model_dump_json() for artist in artists], media_type="application/json")
 
-@router.get("/{artist_id}", response_model=ArtistResponse)
+@router.get("/{artist_id}", response_model=ArtistResponse, responses={200: {"content": {"application/json": {}}}})
 def get_artist(
     artist_id: int,
     db: Session = Depends(get_db),
@@ -52,9 +52,9 @@ def get_artist(
     artist = db.query(Artist).filter(Artist.id == artist_id).first()
     if artist is None:
         raise HTTPException(status_code=404, detail="Artist not found")
-    return artist
+    return Response(content=ArtistResponse.model_validate(artist).model_dump_json(), media_type="application/json")
 
-@router.put("/{artist_id}", response_model=ArtistResponse)
+@router.put("/{artist_id}", response_model=ArtistResponse, responses={200: {"content": {"application/json": {}}}})
 def update_artist(
     artist_id: int,
     artist: ArtistCreate,
@@ -73,9 +73,9 @@ def update_artist(
     
     db.commit()
     db.refresh(db_artist)
-    return db_artist
+    return Response(content=ArtistResponse.model_validate(db_artist).model_dump_json(), media_type="application/json")
 
-@router.delete("/{artist_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{artist_id}", status_code=status.HTTP_204_NO_CONTENT, responses={204: {"content": {"application/json": {}}}})
 def delete_artist(
     artist_id: int,
     db: Session = Depends(get_db),

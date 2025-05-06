@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["albums"]
 )
 
-@router.post("/", response_model=AlbumResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=AlbumResponse, status_code=status.HTTP_201_CREATED, responses={201: {"content": {"application/json": {}}}})
 def create_album(
     album: AlbumCreate,
     db: Session = Depends(get_db),
@@ -31,9 +31,9 @@ def create_album(
     db.add(db_album)
     db.commit()
     db.refresh(db_album)
-    return db_album
+    return Response(content=AlbumResponse.model_validate(db_album).model_dump_json(), media_type="application/json")
 
-@router.get("/", response_model=List[AlbumResponse])
+@router.get("/", response_model=List[AlbumResponse], responses={200: {"content": {"application/json": {}}}})
 def get_albums(
     skip: int = 0,
     limit: int = 100,
@@ -78,9 +78,9 @@ def get_albums(
     
     # Apply pagination
     albums = query.offset(skip).limit(limit).all()
-    return albums
+    return Response(content=[AlbumResponse.model_validate(album).model_dump_json() for album in albums], media_type="application/json")
 
-@router.get("/{album_id}", response_model=AlbumResponse)
+@router.get("/{album_id}", response_model=AlbumResponse, responses={200: {"content": {"application/json": {}}}})
 def get_album(
     album_id: int,
     db: Session = Depends(get_db),
@@ -92,9 +92,9 @@ def get_album(
     album = db.query(Album).filter(Album.id == album_id).first()
     if album is None:
         raise HTTPException(status_code=404, detail="Album not found")
-    return album
+    return Response(content=AlbumResponse.model_validate(album).model_dump_json(), media_type="application/json")
 
-@router.put("/{album_id}", response_model=AlbumResponse)
+@router.put("/{album_id}", response_model=AlbumResponse, responses={200: {"content": {"application/json": {}}}})
 def update_album(
     album_id: int,
     album: AlbumCreate,
@@ -118,9 +118,9 @@ def update_album(
     
     db.commit()
     db.refresh(db_album)
-    return db_album
+    return Response(content=AlbumResponse.model_validate(db_album).model_dump_json(), media_type="application/json")
 
-@router.delete("/{album_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{album_id}", status_code=status.HTTP_204_NO_CONTENT, responses={204: {"content": {"application/json": {}}}})
 def delete_album(
     album_id: int,
     db: Session = Depends(get_db),
