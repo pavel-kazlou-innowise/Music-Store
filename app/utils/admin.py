@@ -38,4 +38,4 @@ def create_admin(username: str, email: str, password: str):
 
 if __name__ == "__main__":
     # Пример использования:
-    # create_admin("admin", "admin@example.com", "your-secure-password")
+    create_admin("admin", "admin@example.com", "admin123")
