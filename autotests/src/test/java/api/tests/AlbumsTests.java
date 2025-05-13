@@ -25,9 +25,9 @@ import static utils.TestDataUtils.*;
 public class AlbumsTests extends BaseTest {
 
     private AlbumModel album = new AlbumModel(getGeneratedName(), getRandomYear(), TestDataUtils.MusicGenre.ROCK.getValue(),
-            getRandomPositiveInt(), getRandomPositiveInt(), 5);
+            getRandomPositiveInt(), getRandomPositiveInt(), 1);
     private AlbumModel albumForUpdate = new AlbumModel("updated", 2025, TestDataUtils.MusicGenre.ROCK.getValue(),
-            214, 552, 5);
+            214, 552, 1);
     private Map<String, Object> queryParams = TestDataUtils.createAlbumQueryParams(
             0, 20, "AT_", "ROCK", 1.0, 1000.0, "price_asc"
     );
@@ -128,7 +128,7 @@ public class AlbumsTests extends BaseTest {
     public void getAlbumByIdTest() {
         Album albumTest = authenticatedAsAdminRequest()
                 .when()
-                .get(BASE_URL + API + ALBUMS + "3")
+                .get(BASE_URL + API + ALBUMS + 1)
                 .then().statusCode(200)
                 .extract().as(Album.class);
         assertEquals("test", albumTest.getTitle(), "The title of album is incorrect");
@@ -147,7 +147,7 @@ public class AlbumsTests extends BaseTest {
     public void getAlbumAsNoAuthorizedTest() {
         ValidatableResponse response = given()
                 .when()
-                .get(BASE_URL + API + ALBUMS + "3")
+                .get(BASE_URL + API + ALBUMS + "1")
                 .then().statusCode(401);
     }
 
@@ -155,7 +155,7 @@ public class AlbumsTests extends BaseTest {
     public void getAlbumAsUserWithoutAdminRightsTest() {
         Album albumTest = authenticatedAsNotAdminRequest()
                 .when()
-                .get(BASE_URL + API + ALBUMS + "3")
+                .get(BASE_URL + API + ALBUMS + "1")
                 .then().statusCode(200)
                 .extract().as(Album.class);
         assertEquals("test", albumTest.getTitle(), "The title of album is incorrect");
@@ -167,7 +167,7 @@ public class AlbumsTests extends BaseTest {
         Album updatedAlbum = authenticatedAsAdminRequest()
                 .body(albumForUpdate)
                 .when()
-                .put(BASE_URL + API + ALBUMS + 3)
+                .put(BASE_URL + API + ALBUMS + 1)
                 .then().statusCode(200)
                 .extract().as(Album.class);
         log.info("Album's title after update is: {}", updatedAlbum.getTitle());
@@ -187,7 +187,7 @@ public class AlbumsTests extends BaseTest {
                 .contentType(ContentType.JSON)
                 .body(albumForUpdate)
                 .when()
-                .put(BASE_URL + API + ALBUMS + 3)
+                .put(BASE_URL + API + ALBUMS + 1)
                 .then().statusCode(401);
     }
 
@@ -196,7 +196,7 @@ public class AlbumsTests extends BaseTest {
         ValidatableResponse response = authenticatedAsNotAdminRequest()
                 .body(albumForUpdate)
                 .when()
-                .put(BASE_URL + API + ALBUMS + 3)
+                .put(BASE_URL + API + ALBUMS + 1)
                 .then().statusCode(403);
     }
 
@@ -212,11 +212,11 @@ public class AlbumsTests extends BaseTest {
     @Test
     public void updateAlbumWithInvalidDataTest() {
         AlbumModel albumForUpdate = new AlbumModel("", 2025, TestDataUtils.MusicGenre.ROCK.getValue(),
-                214, 552, 5);
+                214, 552, 1);
         ValidatableResponse response = authenticatedAsAdminRequest()
                 .body(albumForUpdate)
                 .when()
-                .put(BASE_URL + API + ALBUMS + 3)
+                .put(BASE_URL + API + ALBUMS + 1)
                 .then().statusCode(422);
     }
 

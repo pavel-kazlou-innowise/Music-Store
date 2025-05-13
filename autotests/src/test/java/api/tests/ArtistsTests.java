@@ -119,19 +119,19 @@ public class ArtistsTests extends BaseTest {
     public void getArtistByIdTest() {
         Artist artistTest = authenticatedAsAdminRequest()
                 .when()
-                .get(BASE_URL + API + ARTISTS + "5")
+                .get(BASE_URL + API + ARTISTS + "1")
                 .then().statusCode(200)
                 .extract().as(Artist.class);
-        assertEquals("test", artistTest.getName(), "The name of artist is incorrect");
-        assertEquals("test", artistTest.getDescription(), "The description artist is incorrect");
+        assertEquals(testArtist.getName(), artistTest.getName(), "The name of artist is incorrect");
+        assertEquals(testArtist.getDescription(), artistTest.getDescription(), "The description artist is incorrect");
         log.info("Artist with id {} and name {} was found", artistTest.getId(), artistTest.getName());
     }
 
     @Test
-    public void getAlbumAsNoAuthorizedTest() {
+    public void getArtistAsNoAuthorizedTest() {
         ValidatableResponse response = given()
                 .when()
-                .get(BASE_URL + API + ARTISTS + "5")
+                .get(BASE_URL + API + ARTISTS + "3")
                 .then().statusCode(401);
     }
 
@@ -139,11 +139,11 @@ public class ArtistsTests extends BaseTest {
     public void getArtistAsUserWithoutAdminRightsTest() {
         Artist artistTest = authenticatedAsNotAdminRequest()
                 .when()
-                .get(BASE_URL + API + ARTISTS + "5")
+                .get(BASE_URL + API + ARTISTS + "1")
                 .then().statusCode(200)
                 .extract().as(Artist.class);
-        assertEquals("test", artistTest.getName(), "The name of artist is incorrect");
-        assertEquals("test", artistTest.getDescription(), "The description artist is incorrect");
+        assertEquals(testArtist.getName(), artistTest.getName(), "The name of artist is incorrect");
+        assertEquals(testArtist.getDescription(), artistTest.getDescription(), "The description artist is incorrect");
         log.info("Artist with id {} and name {} was found", artistTest.getId(), artistTest.getName());
     }
 
@@ -161,19 +161,19 @@ public class ArtistsTests extends BaseTest {
         Artist updatedArtist = authenticatedAsAdminRequest()
                 .body(artistForUpdate)
                 .when()
-                .put(BASE_URL + API + ARTISTS + 5)
+                .put(BASE_URL + API + ARTISTS + 1)
                 .then().statusCode(200)
                 .extract().as(Artist.class);
         log.info("Artist's name after update is: {} and description is: {}", updatedArtist.getName(), artistForUpdate.getDescription());
         assertEquals(artistForUpdate.getName(), updatedArtist.getName(), "The name of updated artist is incorrect");
         assertEquals(artistForUpdate.getDescription(), updatedArtist.getDescription(), "The description of updated artist is incorrect");
         // return previous data
-        artistForUpdate.setName("test");
-        artistForUpdate.setDescription("test");
+        artistForUpdate.setName(ARTIST_MODEL.getName());
+        artistForUpdate.setDescription(ARTIST_MODEL.getDescription());
         Response response = authenticatedAsAdminRequest()
                 .body(artistForUpdate)
                 .when()
-                .put(BASE_URL + API + ARTISTS + 5);
+                .put(BASE_URL + API + ARTISTS + 1);
         response.then().statusCode(200);
     }
 
@@ -184,7 +184,7 @@ public class ArtistsTests extends BaseTest {
                 .contentType(ContentType.JSON)
                 .body(artistForUpdate)
                 .when()
-                .put(BASE_URL + API + ARTISTS + 5)
+                .put(BASE_URL + API + ARTISTS + 3)
                 .then().statusCode(401);
     }
 
@@ -194,7 +194,7 @@ public class ArtistsTests extends BaseTest {
         ValidatableResponse updatedArtist = authenticatedAsNotAdminRequest()
                 .body(artistForUpdate)
                 .when()
-                .put(BASE_URL + API + ARTISTS + 5)
+                .put(BASE_URL + API + ARTISTS + 3)
                 .then().statusCode(403);
     }
 
@@ -204,7 +204,7 @@ public class ArtistsTests extends BaseTest {
         ValidatableResponse updatedArtist = authenticatedAsAdminRequest()
                 .body(artistForUpdate)
                 .when()
-                .put(BASE_URL + API + ARTISTS + 5)
+                .put(BASE_URL + API + ARTISTS + 3)
                 .then().statusCode(422);
     }
 

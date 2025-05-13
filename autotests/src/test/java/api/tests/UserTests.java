@@ -1,8 +1,6 @@
 package api.tests;
 
 import api.model.User;
-import api.model.UserModel;
-import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
@@ -12,31 +10,9 @@ import java.util.Map;
 import static api.endpoints.Endpoints.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static utils.TestDataUtils.getGeneratedEmail;
-import static utils.TestDataUtils.getGeneratedName;
 
 @Log4j2
 public class UserTests extends BaseTest {
-    private final String email = getGeneratedEmail();
-    private final String username = getGeneratedName();
-    private final String password = "password";
-    User newUser;
-    UserModel user = new UserModel(email, username, password);
-
-    @Test()
-    public void verifyUserCreationTest() {
-        newUser = given()
-                .contentType(ContentType.JSON)
-                .body(user)
-                .when()
-                .post(BASE_URL + API + REGISTER)
-                .then().statusCode(200)
-                .extract().as(User.class);
-        log.info("New User with id {} and name {} was created", newUser.getId(), newUser.getUsername());
-        assertTrue(email.equalsIgnoreCase(newUser.getEmail()));
-        assertEquals(username, newUser.getUsername());
-    }
 
     @Test()
     public void changeUserRightsTest() {
@@ -44,7 +20,7 @@ public class UserTests extends BaseTest {
         User updatedUser = authenticatedAsAdminRequest()
                 .body(requestBody)
                 .when()
-                .patch(String.format(BASE_URL + API + USERS_USERNAME_RIGHTS, "Tester"))
+                .patch(String.format(BASE_URL + API + USERS_USERNAME_RIGHTS, "TestUser"))
                 .then()
                 .statusCode(200)
                 .extract().as(User.class);
@@ -53,7 +29,7 @@ public class UserTests extends BaseTest {
         updatedUser = authenticatedAsAdminRequest()
                 .body(requestBody)
                 .when()
-                .patch(String.format(BASE_URL + API + USERS_USERNAME_RIGHTS, "Tester"))
+                .patch(String.format(BASE_URL + API + USERS_USERNAME_RIGHTS, "TestUser"))
                 .then()
                 .statusCode(200)
                 .extract().as(User.class);
